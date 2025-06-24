@@ -14,11 +14,8 @@ const app = express();
 const corsOptions = {
   origin: FRONTEND,
   credentials: true,
-  methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type','Authorization']
 };
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
 
 // Body parsing
 app.use(bodyParser.json());
