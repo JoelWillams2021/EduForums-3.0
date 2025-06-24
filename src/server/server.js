@@ -1,20 +1,16 @@
-// server.js
 import dotenv from 'dotenv';
 dotenv.config();
-
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
 import session from 'express-session';
 import { MongoClient, ObjectId } from 'mongodb';
-// ② import OpenAI client
-
 import OpenAI from 'openai';
 
 const FRONTEND = process.env.FRONTEND_URL || 'http://localhost:5173';
 const app = express();
 
-// allow both dev and prod origins
+// CORS setup to allow your React app to communicate with this server
 const corsOptions = {
   origin: FRONTEND,
   credentials: true,
@@ -22,15 +18,15 @@ const corsOptions = {
   allowedHeaders: ['Content-Type','Authorization']
 };
 app.use(cors(corsOptions));
-// also ensure pre-flight is handled
 app.options('*', cors(corsOptions));
 
+// Body parsing
 app.use(bodyParser.json());
 
 // Session middleware
 app.use(
   session({
-    secret: 'your-secret-key',
+    secret: process.env.SESSION_SECRET || 'your-secret-key',
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -42,166 +38,133 @@ app.use(
 );
 
 // MongoDB client setup
-const uri = 'mongodb://127.0.0.1:27017/';
+const uri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/';
 const client = new MongoClient(uri);
 
+// OpenAI client
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-const openai = new OpenAI({
-   apiKey: process.env.OPENAI_API_KEY
-});
-
-// Global counter to enforce “only one active signup/login flows” logic
+// Global counter for signup/login flows
 let count = 0;
 
 async function startServer() {
   try {
+    // Connect to DB
     await client.connect();
     console.log('🗄️  Connected to MongoDB');
     const db = client.db('EduForums');
 
-    //
     // STUDENT SIGN-UP
-    //
-    app.post('/student-signup', async (req, res) => {
+    app.post('/api/student-signup', async (req, res) => {
       const { name, password } = req.body;
-
-      // If there's already a session _and_ we've already signed someone up, reject
       if (req.session && count >= 1) {
         return res.status(400).json({ error: 'A user is already signed up or logged in' });
       }
-
-      const exists = await db
-        .collection('users')
-        .findOne({ name, userType: 'Student' });
-      if (exists) {
-        return res.status(400).json({ error: 'Student already exists' });
-      }
-
-      await db
-        .collection('users')
-        .insertOne({ name, password, userType: 'Student' });
-
-      // Record session and bump the counter
+      const exists = await db.collection('users').findOne({ name, userType: 'Student' });
+      if (exists) return res.status(400).json({ error: 'Student already exists' });
+      await db.collection('users').insertOne({ name, password, userType: 'Student' });
       req.session.user = { name, userType: 'Student' };
       count += 1;
       console.log('Signed up student:', name);
-
       return res.json({ success: true });
     });
 
-    //
     // STUDENT LOGIN
-    //
-    app.post('/login-student', async (req, res) => {
+    app.post('/api/login-student', async (req, res) => {
       const { name, password } = req.body;
-
-      // If there's already a session _and_ two sign-up/logins have happened, reject
       if (req.session && count >= 2) {
         return res.status(400).json({ error: 'A user is already signed up or logged in' });
       }
-
-      const user = await db
-        .collection('users')
-        .findOne({ name, userType: 'Student' });
-      if (!user) {
-        return res.status(400).json({ error: 'Student does not exist' });
-      }
-      if (user.password !== password) {
+      const user = await db.collection('users').findOne({ name, userType: 'Student' });
+      if (!user || user.password !== password) {
         return res.status(400).json({ error: 'Invalid password' });
       }
-
       req.session.user = { name: user.name, userType: user.userType };
+      count += 1;
       console.log('Logged in student:', name);
-
       return res.json({ success: true });
     });
 
-    //
     // ADMIN SIGN-UP
-    //
-    app.post('/admin-signup', async (req, res) => {
+    app.post('/api/admin-signup', async (req, res) => {
       const { name, password } = req.body;
-
       if (req.session && count >= 1) {
         return res.status(400).json({ error: 'A user is already signed up or logged in' });
       }
-
-      const exists = await db
-        .collection('users')
-        .findOne({ name, userType: 'Admin' });
-      if (exists) {
-        return res.status(400).json({ error: 'Admin already exists' });
-      }
-
-      await db
-        .collection('users')
-        .insertOne({ name, password, userType: 'Admin' });
-
+      const exists = await db.collection('users').findOne({ name, userType: 'Admin' });
+      if (exists) return res.status(400).json({ error: 'Admin already exists' });
+      await db.collection('users').insertOne({ name, password, userType: 'Admin' });
       req.session.user = { name, userType: 'Admin' };
       count += 1;
       console.log('Signed up admin:', name);
-
       return res.json({ success: true });
     });
 
-    //
     // ADMIN LOGIN
-    //
-    app.post('/login-admin', async (req, res) => {
+    app.post('/api/login-admin', async (req, res) => {
       const { name, password } = req.body;
-
       if (req.session && count >= 2) {
         return res.status(400).json({ error: 'A user is already signed up or logged in' });
       }
-
-      const user = await db
-        .collection('users')
-        .findOne({ name, userType: 'Admin' });
-      if (!user) {
-        return res.status(400).json({ error: 'Admin does not exist' });
-      }
-      if (user.password !== password) {
+      const user = await db.collection('users').findOne({ name, userType: 'Admin' });
+      if (!user || user.password !== password) {
         return res.status(400).json({ error: 'Invalid password' });
       }
-
       req.session.user = { name: user.name, userType: user.userType };
+      count += 1;
       console.log('Logged in admin:', name);
-
       return res.json({ success: true });
     });
 
-    //
     // LOGOUT
-    //
-    app.post('/logout', (req, res) => {
-      if (!req.session) {
-        return res.status(400).json({ error: 'No session to destroy' });
-      }
-
+    app.post('/api/logout', (req, res) => {
+      if (!req.session) return res.status(400).json({ error: 'No session to destroy' });
       req.session.destroy(err => {
         if (err) {
           console.error('Logout error:', err);
           return res.status(500).json({ error: 'Could not log out.' });
         }
-
-        // Reset global counter on any logout
         count = 0;
         res.clearCookie('connect.sid');
         return res.json({ success: true });
       });
     });
 
-    //
     // CHECK USER ROLE
-    //
     app.get('/api/check-user-role', (req, res) => {
-      if (req.session && req.session.user) {
-        return  res.status(200).json({
-          name:  req.session.user.name,
-          userType: req.session.user.userType
-        });
+      if (req.session?.user) {
+        return res.json({ name: req.session.user.name, userType: req.session.user.userType });
       }
-      return res.status(401).json({ error: 'Unauthorized' });
+      res.status(401).json({ error: 'Unauthorized' });
+    });
+
+    // Create a community (Admins only)
+    app.post('/api/communities', async (req, res) => {
+      if (!req.session?.user || req.session.user.userType !== 'Admin') {
+        return res.status(403).json({ error: 'Forbidden' });
+      }
+      const { name, description } = req.body;
+      if (!name || !description) {
+        return res.status(400).json({ error: 'Name and description required' });
+      }
+      try {
+        const result = await db.collection('communities').insertOne({ name, description, createdAt: new Date() });
+        res.json({ success: true, id: result.insertedId });
+      } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
+      }
+    });
+
+    // List all communities
+    app.get('/api/communities', async (req, res) => {
+      try {
+        const communities = await db.collection('communities').find().sort({ createdAt: -1 }).toArray();
+        res.json({ communities });
+      } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Server error' });
+      }
     });
 
     // Create a community (Admins only)
@@ -224,20 +187,6 @@ async function startServer() {
       }
     });
 
-    // List all communities
-    app.get('/api/communities', async (req, res) => {
-      try {
-        const communities = await db
-          .collection('communities')
-          .find()
-          .sort({ createdAt: -1 })
-          .toArray();
-        res.json({ communities });
-      } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Server error' });
-      }
-    });
 
     app.delete('/api/communities/:id', async (req, res) => {
       const user = req.session.user;
@@ -694,6 +643,7 @@ async function startServer() {
     app.listen(PORT, () => {
       console.log('🚀 Server running on {PORT}');
     });
+
   } catch (err) {
     console.error('❌ Failed to start server:', err);
     process.exit(1);
