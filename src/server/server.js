@@ -62,7 +62,7 @@ async function startServer() {
     //
     // STUDENT SIGN-UP
     //
-    app.post('/api/student-signup', async (req, res) => {
+    app.post('/student-signup', async (req, res) => {
       const { name, password } = req.body;
 
       // If there's already a session _and_ we've already signed someone up, reject
@@ -92,7 +92,7 @@ async function startServer() {
     //
     // STUDENT LOGIN
     //
-    app.post('/api/login-student', async (req, res) => {
+    app.post('/login-student', async (req, res) => {
       const { name, password } = req.body;
 
       // If there's already a session _and_ two sign-up/logins have happened, reject
@@ -119,7 +119,7 @@ async function startServer() {
     //
     // ADMIN SIGN-UP
     //
-    app.post('/api/admin-signup', async (req, res) => {
+    app.post('/admin-signup', async (req, res) => {
       const { name, password } = req.body;
 
       if (req.session && count >= 1) {
@@ -147,7 +147,7 @@ async function startServer() {
     //
     // ADMIN LOGIN
     //
-    app.post('/api/login-admin', async (req, res) => {
+    app.post('/login-admin', async (req, res) => {
       const { name, password } = req.body;
 
       if (req.session && count >= 2) {
@@ -173,7 +173,7 @@ async function startServer() {
     //
     // LOGOUT
     //
-    app.post('/api/logout', (req, res) => {
+    app.post('/logout', (req, res) => {
       if (!req.session) {
         return res.status(400).json({ error: 'No session to destroy' });
       }
