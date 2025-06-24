@@ -3,6 +3,7 @@ import axios from 'axios';
 import Button from './components/Button';
 import { useNavigate } from 'react-router-dom';
 import login from './assets/login.svg';
+import { API_BASE } from './api';
 
 const AuthForm: React.FC<{ isSignUp: boolean; userType: 'Student' | 'Admin' }> = ({ isSignUp, userType }) => {
   const [name, setName] = useState('');
@@ -24,7 +25,7 @@ const AuthForm: React.FC<{ isSignUp: boolean; userType: 'Student' | 'Admin' }> =
 
     try {
       const response = await axios.post(
-        `http://localhost:3000/${endpoint}`,
+        `${API_BASE}/${endpoint}`,
         { name, password, userType },
         { withCredentials: true }
       );
@@ -52,7 +53,7 @@ const AuthForm: React.FC<{ isSignUp: boolean; userType: 'Student' | 'Admin' }> =
     event.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:3000/logout', {}, { withCredentials: true });
+      const response = await axios.post(`${API_BASE}/logout`, {}, { withCredentials: true });
 
       if (response.data.success) {
         // Redirect to the signup page for the current userType

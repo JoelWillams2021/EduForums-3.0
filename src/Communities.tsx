@@ -4,7 +4,7 @@ import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash } from '@fortawesome/free-solid-svg-icons';
 import community from './assets/community.svg';
-
+import { API_BASE } from './api';
 
 type Community = {
   _id: string;
@@ -22,8 +22,8 @@ const CommunitiesPage: React.FC = () => {
     async function init() {
       try {
         const [roleRes, listRes] = await Promise.all([
-          axios.get('http://localhost:3000/api/check-user-role', { withCredentials: true }),
-          axios.get('http://localhost:3000/api/communities', { withCredentials: true }),
+          axios.get(`${API_BASE}/api/check-user-role`, { withCredentials: true }),
+          axios.get(`${API_BASE}/api/communities`, { withCredentials: true }),
         ]);
         setUserType(roleRes.data.userType);
         setCommunities(listRes.data.communities);
@@ -38,7 +38,7 @@ const CommunitiesPage: React.FC = () => {
 
   const handleDelete = async (id: string) => {
     try {
-      await axios.delete(`http://localhost:3000/api/communities/${id}`, { withCredentials: true });
+      await axios.delete(`${API_BASE}/api/communities/${id}`, { withCredentials: true });
       setCommunities((prev) => prev.filter((c) => c._id !== id));
     } catch (err) {
       console.error('Failed to delete:', err);

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
+import { API_BASE } from './api';
 
 const AddFeedbackPage: React.FC = () => {
   const { communityId } = useParams<{ communityId: string }>();
@@ -17,7 +18,7 @@ const AddFeedbackPage: React.FC = () => {
   // On mount, fetch the current user's name
   useEffect(() => {
     axios
-      .get('http://localhost:3000/api/me', { withCredentials: true })
+      .get(`${API_BASE}/api/me`, { withCredentials: true })
       .then(res => setUserName(res.data.name))
       .catch(() => setError('Could not fetch your user info. Please log in again.'));
   }, []);
@@ -38,7 +39,7 @@ const AddFeedbackPage: React.FC = () => {
 
     try {
       await axios.post(
-        `http://localhost:3000/api/communities/${communityId}/feedbacks`,
+        `${API_BASE}/api/communities/${communityId}/feedbacks`,
         {
           studentName: userName, // use logged‐in name
           standing,

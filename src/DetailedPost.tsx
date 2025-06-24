@@ -8,6 +8,8 @@ import {
   faThumbsDown,
   faCommentDots,
 } from '@fortawesome/free-solid-svg-icons';
+import { API_BASE } from './api';
+
 
 interface Feedback {
   _id: string;
@@ -48,7 +50,7 @@ const DetailedPost: React.FC = () => {
   // fetch current user info
   useEffect(() => {
     axios
-      .get('http://localhost:3000/api/me', { withCredentials: true })
+      .get(`${API_BASE}/api/me`, { withCredentials: true })
       .then(res => setCurrentUser(res.data))
       .catch(() => setCurrentUser(null));
   }, []);
@@ -59,9 +61,9 @@ const DetailedPost: React.FC = () => {
     (async () => {
       try {
         const [meRes, fbRes, cmRes] = await Promise.all([
-          axios.get('http://localhost:3000/api/me', { withCredentials: true }),
-          axios.get(`http://localhost:3000/api/feedbacks/${feedbackId}`, { withCredentials: true }),
-          axios.get(`http://localhost:3000/api/feedbacks/${feedbackId}/comments`, { withCredentials: true }),
+          axios.get(`${API_BASE}/api/me`, { withCredentials: true }),
+          axios.get(`${API_BASE}/api/feedbacks/${feedbackId}`, { withCredentials: true }),
+          axios.get(`${API_BASE}/api/feedbacks/${feedbackId}/comments`, { withCredentials: true }),
         ]);
         setUserType(meRes.data.userType);
         setCurrentUser(meRes.data);
@@ -81,7 +83,7 @@ const DetailedPost: React.FC = () => {
     setIsLoadingSummary(true);
     axios
       .get<{ summary: string }>(
-        `http://localhost:3000/api/feedbacks/${feedback._id}/summary`,
+        `${API_BASE}/api/feedbacks/${feedback._id}/summary`,
         { withCredentials: true }
       )
       .then(res => setAiSummary(res.data.summary))
@@ -96,7 +98,7 @@ const DetailedPost: React.FC = () => {
     if (!feedbackId || userVote) return;
     try {
       await axios.post(
-        `http://localhost:3000/api/feedbacks/${feedbackId}/${type}`,
+        `${API_BASE}/api/feedbacks/${feedbackId}/${type}`,
         {},
         { withCredentials: true }
       );

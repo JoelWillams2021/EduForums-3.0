@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
+import { API_BASE } from './api';
+
 
 const AddComment: React.FC = () => {
   const { feedbackId } = useParams<{ feedbackId: string }>();
@@ -20,7 +22,7 @@ const AddComment: React.FC = () => {
 
     try {
       await axios.post(
-        `http://localhost:3000/api/feedbacks/${feedbackId}/comments`,
+        `${API_BASE}/api/feedbacks/${feedbackId}/comments`,
         {commentText },
         { withCredentials: true }
       );

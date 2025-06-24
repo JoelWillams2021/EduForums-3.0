@@ -9,6 +9,7 @@ import {
   faStar as faSolidStar,
 } from '@fortawesome/free-solid-svg-icons';
 import { faStar as faRegularStar } from '@fortawesome/free-regular-svg-icons';
+import { API_BASE } from './api';
 
 // Data models
 interface Community {
@@ -62,9 +63,9 @@ const ForumsPage: React.FC = () => {
       if (!communityId) return;
       try {
         const [roleRes, commRes, fbRes] = await Promise.all([
-          axios.get('http://localhost:3000/api/check-user-role', { withCredentials: true }),
-          axios.get(`http://localhost:3000/api/communities/${communityId}`, { withCredentials: true }),
-          axios.get(`http://localhost:3000/api/communities/${communityId}/feedbacks`, { withCredentials: true }),
+          axios.get(`${API_BASE}/api/check-user-role`, { withCredentials: true }),
+          axios.get(`${API_BASE}/api/communities/${communityId}`, { withCredentials: true }),
+          axios.get(`${API_BASE}/api/communities/${communityId}/feedbacks`, { withCredentials: true }),
         ]);
         setUserType(roleRes.data.userType);
         setCommunity(commRes.data.community);
@@ -85,7 +86,7 @@ const ForumsPage: React.FC = () => {
       if (sentiments[f._id]) return;
       axios
         .post(
-          'http://localhost:3000/api/sentiment',
+          `${API_BASE}/api/sentiment`,
           { text: f.description },
           { withCredentials: true }
         )
@@ -104,7 +105,7 @@ const ForumsPage: React.FC = () => {
     if (userVotes[fid]) return; // one vote per session
     try {
       await axios.post(
-        `http://localhost:3000/api/feedbacks/${fid}/${type}`,
+        `${API_BASE}/api/feedbacks/${fid}/${type}`,
         {},
         { withCredentials: true }
       );
@@ -133,7 +134,7 @@ const ForumsPage: React.FC = () => {
     const action = currentlyStarred ? 'unstar' : 'star';
     try {
       await axios.post(
-        `http://localhost:3000/api/feedbacks/${fid}/${action}`,
+        `${API_BASE}/api/feedbacks/${fid}/${action}`,
         {},
         { withCredentials: true }
       );

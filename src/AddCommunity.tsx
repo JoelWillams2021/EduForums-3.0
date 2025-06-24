@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { API_BASE } from './api';
 
 const AddCommunityPage: React.FC = () => {
   const [name, setName] = useState('');
@@ -14,7 +15,7 @@ const AddCommunityPage: React.FC = () => {
 
     try {
       await axios.post(
-        'http://localhost:3000/api/communities',
+        `${API_BASE}/api/communities`,
         { name, description },
         { withCredentials: true }
       );
