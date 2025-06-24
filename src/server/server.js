@@ -1,6 +1,7 @@
 // server.js
 import dotenv from 'dotenv';
 dotenv.config();
+
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
@@ -10,15 +11,20 @@ import { MongoClient, ObjectId } from 'mongodb';
 
 import OpenAI from 'openai';
 
-
+const FRONTEND = process.env.FRONTEND_URL || 'http://localhost:5173';
 const app = express();
 
-// CORS setup to allow your React app to communicate with this server
+// allow both dev and prod origins
 const corsOptions = {
-  origin: 'http://localhost:5173',
+  origin: FRONTEND,
   credentials: true,
+  methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization']
 };
 app.use(cors(corsOptions));
+// also ensure pre-flight is handled
+app.options('*', cors(corsOptions));
+
 app.use(bodyParser.json());
 
 // Session middleware
