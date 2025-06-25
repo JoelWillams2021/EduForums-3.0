@@ -24,6 +24,7 @@ const corsOptions = {
   origin: FRONTEND_URL,
   credentials: true,
 };
+
 if (!corsOptions.origin) {
   console.error('❌ FRONTEND_URL not set in env');                      
   process.exit(1);
@@ -63,7 +64,7 @@ async function startServer() {
     const db = client.db('EduForums');
 
     // STUDENT SIGN-UP
-    app.post('/api/student-signup', async (req, res) => {
+    app.post('/student-signup', async (req, res) => {
       const { name, password } = req.body;
       if (req.session && count >= 1) {
         return res.status(400).json({ error: 'A user is already signed up or logged in' });
@@ -78,7 +79,7 @@ async function startServer() {
     });
 
     // STUDENT LOGIN
-    app.post('/api/login-student', async (req, res) => {
+    app.post('/login-student', async (req, res) => {
       const { name, password } = req.body;
       if (req.session && count >= 2) {
         return res.status(400).json({ error: 'A user is already signed up or logged in' });
@@ -94,7 +95,7 @@ async function startServer() {
     });
 
     // ADMIN SIGN-UP
-    app.post('/api/admin-signup', async (req, res) => {
+    app.post('/admin-signup', async (req, res) => {
       const { name, password } = req.body;
       if (req.session && count >= 1) {
         return res.status(400).json({ error: 'A user is already signed up or logged in' });
@@ -109,7 +110,7 @@ async function startServer() {
     });
 
     // ADMIN LOGIN
-    app.post('/api/login-admin', async (req, res) => {
+    app.post('/login-admin', async (req, res) => {
       const { name, password } = req.body;
       if (req.session && count >= 2) {
         return res.status(400).json({ error: 'A user is already signed up or logged in' });
@@ -125,7 +126,7 @@ async function startServer() {
     });
 
     // LOGOUT
-    app.post('/api/logout', (req, res) => {
+    app.post('/logout', (req, res) => {
       if (!req.session) return res.status(400).json({ error: 'No session to destroy' });
       req.session.destroy(err => {
         if (err) {
