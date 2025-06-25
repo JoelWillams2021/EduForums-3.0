@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
 dotenv.config();
-const MONGODB_URI = process.env.MONGODB_URI;
+const MONGODB_URI = process.env.MONGODB_URL;
 if (!MONGODB_URI) {
   console.error('❌ MONGODB_URI not set in env');
   process.exit(1);
