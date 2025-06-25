@@ -12,8 +12,8 @@ import session from 'express-session';
 import { MongoClient, ObjectId } from 'mongodb';
 import OpenAI from 'openai';
 
-const FRONTEND = process.env.FRONTEND_URL 
-if (!FRONTEND) {
+const FRONTEND_URL = process.env.FRONTEND_URL 
+if (!FRONTEND_URL) {
   console.error('❌ FRONTEND_URL not set');
   process.exit(1);
 }
@@ -21,7 +21,7 @@ const app = express();
 
 // CORS setup to allow your React app to communicate with this server
 const corsOptions = {
-  origin: FRONTEND,
+  origin: FRONTEND_URL,
   credentials: true,
 };
 if (!corsOptions.origin) {
