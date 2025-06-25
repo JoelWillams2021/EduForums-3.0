@@ -20,19 +20,15 @@ if (!FRONTEND) {
 const app = express();
 
 // CORS setup to allow your React app to communicate with this server
-app.use(cors({
-  origin: (incomingOrigin, cb) => {
-    console.log('⏩ CORS preflight, origin:', incomingOrigin);
-    if (!incomingOrigin || allowedOrigins.includes(incomingOrigin)) {
-      // allow if it's a simple non-browser client (no origin) or in our list
-      return cb(null, true);
-    }
-    // simply disallow by sending “false” — no header, no 500
-    return cb(null, false);
-  },
-  credentials: true
-}));
-
+const corsOptions = {
+  origin: FRONTEND,
+  credentials: true,
+};
+if (!corsOptions.origin) {
+  console.error('❌ FRONTEND_URL not set in env');                      
+  process.exit(1);
+}
+app.use(cors(corsOptions));
 
 // Body parsing
 app.use(bodyParser.json());
