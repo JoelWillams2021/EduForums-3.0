@@ -20,11 +20,19 @@ if (!FRONTEND) {
 const app = express();
 
 // CORS setup to allow your React app to communicate with this server
-const corsOptions = {
-  origin: FRONTEND,
-  credentials: true,
-};
-app.use(cors(corsOptions));
+app.use(cors({
+  origin: (incomingOrigin, cb) => {
+    console.log('⏩ CORS preflight, origin:', incomingOrigin);
+    if (!incomingOrigin || allowedOrigins.includes(incomingOrigin)) {
+      // allow if it's a simple non-browser client (no origin) or in our list
+      return cb(null, true);
+    }
+    // simply disallow by sending “false” — no header, no 500
+    return cb(null, false);
+  },
+  credentials: true
+}));
+
 
 // Body parsing
 app.use(bodyParser.json());
