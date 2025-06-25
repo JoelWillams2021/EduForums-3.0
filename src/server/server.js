@@ -8,6 +8,7 @@ import { MongoClient, ObjectId } from 'mongodb';
 import OpenAI from 'openai';
 
 const FRONTEND = process.env.FRONTEND_URL || 'http://localhost:5173';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017';
 const app = express();
 
 // CORS setup to allow your React app to communicate with this server
@@ -34,9 +35,7 @@ app.use(
   })
 );
 
-// MongoDB client setup
-const uri = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/';
-const client = new MongoClient(uri);
+const client = new MongoClient(MONGODB_URI);
 
 // OpenAI client
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
