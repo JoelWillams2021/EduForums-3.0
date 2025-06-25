@@ -35,7 +35,7 @@ app.use(
   })
 );
 
-const client = new MongoClient(MONGODB_URI);
+const client = new MongoClient(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true });
 
 // OpenAI client
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
