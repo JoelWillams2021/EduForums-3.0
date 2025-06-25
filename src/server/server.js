@@ -31,6 +31,11 @@ if (!corsOptions.origin) {
 }
 app.use(cors(corsOptions));
 
+app.use((req, res, next) => {
+  console.log('🛰️  Incoming:', req.method, req.originalUrl);
+  next();
+});
+
 // Body parsing
 app.use(bodyParser.json());
 
