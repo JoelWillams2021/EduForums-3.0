@@ -1,8 +1,8 @@
 import dotenv from 'dotenv';
 dotenv.config();
-const MONGODB_URI = process.env.MONGODB_URL;
+const MONGODB_URI = process.env.MONGO_URL;
 if (!MONGODB_URI) {
-  console.error('❌ MONGODB_URI not set in env');
+  console.error('❌ MONGODB_URL not set in env');
   process.exit(1);
 }
 import express from 'express';
