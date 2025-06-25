@@ -1,5 +1,10 @@
 import dotenv from 'dotenv';
 dotenv.config();
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017';
+if (!MONGODB_URI) {
+  console.error('❌ MONGODB_URI not set in env');
+  process.exit(1);
+}
 import express from 'express';
 import bodyParser from 'body-parser';
 import cors from 'cors';
@@ -8,7 +13,6 @@ import { MongoClient, ObjectId } from 'mongodb';
 import OpenAI from 'openai';
 
 const FRONTEND = process.env.FRONTEND_URL || 'http://localhost:5173';
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017';
 const app = express();
 
 // CORS setup to allow your React app to communicate with this server
@@ -164,24 +168,6 @@ async function startServer() {
     });
 
     // Create a community (Admins only)
-    app.post('/api/communities', async (req, res) => {
-      if (!req.session?.user || req.session.user.userType !== 'Admin') {
-        return res.status(403).json({ error: 'Forbidden' });
-      }
-      const { name, description } = req.body;
-      if (!name || !description) {
-        return res.status(400).json({ error: 'Name and description required' });
-      }
-      try {
-        const result = await db
-          .collection('communities')
-          .insertOne({ name, description, createdAt: new Date() });
-        res.json({ success: true, id: result.insertedId });
-      } catch (err) {
-        console.error(err);
-        res.status(500).json({ error: 'Server error' });
-      }
-    });
 
 
     app.delete('/api/communities/:id', async (req, res) => {
