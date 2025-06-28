@@ -70,73 +70,124 @@ async function startServer() {
     const db = client.db('EduForums');
 
     // STUDENT SIGN-UP
+   // STUDENT SIGN-UP (creates account, but doesn’t log in)
     app.post('/student-signup', async (req, res) => {
       const { name, password } = req.body;
-      console.log(count + "For signup (before)");
+
       if (req.session.user) {
-        return res.status(400).json({ error: 'A user is already signed up or logged in' });
+        return res
+          .status(400)
+          .json({ error: 'A user is already signed up or logged in' });
       }
-      const exists = await db.collection('users').findOne({ name, userType: 'Student' });
-      if (exists) return res.status(400).json({ error: 'Student already exists' });
-      await db.collection('users').insertOne({ name, password, userType: 'Student' });
-   
+
+      const exists = await db
+        .collection('users')
+        .findOne({ name, userType: 'Student' });
+      if (exists) {
+        return res.status(400).json({ error: 'Student already exists' });
+      }
+
+      await db
+        .collection('users')
+        .insertOne({ name, password, userType: 'Student' });
+
+      console.log('Signed up student:', name);
+      res.json({ success: true });
     });
 
-    // STUDENT LOGIN
+    // STUDENT LOGIN (verifies credentials, then sets session)
     app.post('/login-student', async (req, res) => {
       const { name, password } = req.body;
-      console.log(count + "For login (before)");
+
       if (req.session.user) {
-        return res.status(400).json({ error: 'A user is already signed up or logged in' });
+        return res
+          .status(400)
+          .json({ error: 'A user is already signed up or logged in' });
       }
-      const user = await db.collection('users').findOne({ name, userType: 'Student' });
+
+      const user = await db
+        .collection('users')
+        .findOne({ name, userType: 'Student' });
+
       if (!user || user.password !== password) {
         return res.status(400).json({ error: 'Invalid password' });
       }
-      req.session.user = { name, userType: 'Student' };
-      console.log('Signed up student:', name);
-      return res.json({ success: true });
+
+      // **set the session here only**
+      req.session.user = { name: user.name, userType: user.userType };
+      console.log('Logged in student:', user.name);
+
+      res.json({ success: true });
     });
 
-    // ADMIN SIGN-UP
+    // ADMIN SIGN-UP (creates account, but doesn’t log in)
     app.post('/admin-signup', async (req, res) => {
       const { name, password } = req.body;
+
       if (req.session.user) {
-        return res.status(400).json({ error: 'A user is already signed up or logged in' });
+        return res
+          .status(400)
+          .json({ error: 'A user is already signed up or logged in' });
       }
-      const exists = await db.collection('users').findOne({ name, userType: 'Admin' });
-      if (exists) return res.status(400).json({ error: 'Admin already exists' });
-      await db.collection('users').insertOne({ name, password, userType: 'Admin' });
-      
+
+      const exists = await db
+        .collection('users')
+        .findOne({ name, userType: 'Admin' });
+      if (exists) {
+        return res.status(400).json({ error: 'Admin already exists' });
+      }
+
+      await db
+        .collection('users')
+        .insertOne({ name, password, userType: 'Admin' });
+
+      console.log('Signed up admin:', name);
+      res.json({ success: true });
     });
 
-    // ADMIN LOGIN
+    // ADMIN LOGIN (verifies credentials, then sets session)
     app.post('/login-admin', async (req, res) => {
       const { name, password } = req.body;
-      if (req.session.user ) {
-        return res.status(400).json({ error: 'A user is already signed up or logged in' });
+
+      if (req.session.user) {
+        return res
+          .status(400)
+          .json({ error: 'A user is already signed up or logged in' });
       }
-      const user = await db.collection('users').findOne({ name, userType: 'Admin' });
+
+      const user = await db
+        .collection('users')
+        .findOne({ name, userType: 'Admin' });
+
       if (!user || user.password !== password) {
         return res.status(400).json({ error: 'Invalid password' });
       }
-      req.session.user = { name, userType: 'Admin' };
-      console.log('Signed up admin:', name);
-      return res.json({ success: true });
+
+      // **set the session here only**
+      req.session.user = { name: user.name, userType: user.userType };
+      console.log('Logged in admin:', user.name);
+
+      res.json({ success: true });
     });
 
-    // LOGOUT
+    // LOGOUT (destroys session, clears cookie)
     app.post('/logout', (req, res) => {
-      if (!req.session) return res.status(400).json({ error: 'No session to destroy' });
+      if (!req.session) {
+        return res.status(400).json({ error: 'No session to destroy' });
+      }
+
       req.session.destroy(err => {
         if (err) {
           console.error('Logout error:', err);
           return res.status(500).json({ error: 'Could not log out.' });
         }
+
+        // make sure this matches your session cookie name
         res.clearCookie('connect.sid');
-        return res.json({ success: true });
+        res.json({ success: true });
       });
     });
+
 
     // CHECK USER ROLE
     app.get('/api/check-user-role', (req, res) => {
