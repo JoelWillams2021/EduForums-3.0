@@ -1,21 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { API_BASE } from './api';
+
+interface FormFields {
+  standing: string;
+  major: string;
+  title: string;
+  description: string;
+}
 
 const AddFeedbackPage: React.FC = () => {
   const { communityId } = useParams<{ communityId: string }>();
   const navigate = useNavigate();
 
-  // We'll fetch the logged‐in user's name instead of asking for it
   const [userName, setUserName] = useState<string>('');
-  const [standing, setStanding] = useState('');
-  const [major, setMajor] = useState('');
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [error, setError] = useState('');
+  const [form, setForm] = useState<FormFields>({
+    standing: '',
+    major: '',
+    title: '',
+    description: ''
+  });
+  const [error, setError] = useState<string>('');
 
-  // On mount, fetch the current user's name
   useEffect(() => {
     axios
       .get(`${API_BASE}/api/me`, { withCredentials: true })
@@ -23,37 +30,35 @@ const AddFeedbackPage: React.FC = () => {
       .catch(() => setError('Could not fetch your user info. Please log in again.'));
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
+  const handleChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+      const { id, value } = e.target;
+      setForm(prev => ({ ...prev, [id]: value }));
+    },
+    []
+  );
 
-    if (!communityId) {
-      setError('Invalid community.');
-      return;
-    }
-    if (!userName) {
-      setError('User not recognized. Please log in.');
-      return;
-    }
-  
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setError('');
 
-    try {
-      await axios.post(
-        `${API_BASE}/api/communities/${communityId}/feedbacks`,
-        {
-          studentName: userName, // use logged‐in name
-          standing,
-          major,
-          title,
-          description,
-        },
-        { withCredentials: true }
-      );
-      navigate(`/forums/${communityId}`);
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to submit feedback');
-    }
-  };
+      if (!communityId) return setError('Invalid community.');
+      if (!userName) return setError('User not recognized. Please log in.');
+
+      try {
+        await axios.post(
+          `${API_BASE}/api/communities/${communityId}/feedbacks`,
+          { studentName: userName, ...form },
+          { withCredentials: true }
+        );
+        navigate(`/forums/${communityId}`);
+      } catch (err: any) {
+        setError(err.response?.data?.error ?? 'Failed to submit feedback');
+      }
+    },
+    [communityId, userName, form, navigate]
+  );
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 via-blue-100 to-gray-100 p-4">
@@ -63,57 +68,34 @@ const AddFeedbackPage: React.FC = () => {
         {error && <div className="bg-red-100 text-red-700 p-3 mb-4 rounded">{error}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Show the fetched user name */}
           <div>
             <p className="text-gray-700">
               <span className="font-medium">Your Name:</span> {userName || 'Loading...'}
             </p>
           </div>
 
-          <div>
-            <label htmlFor="standing" className="block text-sm font-medium text-gray-700">
-              Standing
-            </label>
-            <input
-              id="standing"
-              type="text"
-              required
-              value={standing}
-              onChange={e => setStanding(e.target.value)}
-              placeholder="e.g. Sophomore"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="major" className="block text-sm font-medium text-gray-700">
-              Major
-            </label>
-            <input
-              id="major"
-              type="text"
-              required
-              value={major}
-              onChange={e => setMajor(e.target.value)}
-              placeholder="e.g. Computer Science"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-
-          <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-              Feedback Title
-            </label>
-            <input
-              id="title"
-              type="text"
-              required
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-              placeholder="Short, descriptive title"
-              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
+          {(['standing', 'major', 'title'] as const).map(field => (
+            <div key={field}>
+              <label htmlFor={field} className="block text-sm font-medium text-gray-700 capitalize">
+                {field === 'title' ? 'Feedback Title' : field}
+              </label>
+              <input
+                id={field}
+                type="text"
+                required
+                value={form[field]}
+                onChange={handleChange}
+                placeholder={
+                  field === 'standing'
+                    ? 'e.g. Sophomore'
+                    : field === 'major'
+                    ? 'e.g. Computer Science'
+                    : 'Short, descriptive title'
+                }
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+          ))}
 
           <div>
             <label htmlFor="description" className="block text-sm font-medium text-gray-700">
@@ -123,8 +105,8 @@ const AddFeedbackPage: React.FC = () => {
               id="description"
               rows={4}
               required
-              value={description}
-              onChange={e => setDescription(e.target.value)}
+              value={form.description}
+              onChange={handleChange}
               placeholder="Your detailed feedback..."
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm sm:text-sm p-2 focus:ring-blue-500 focus:border-blue-500"
             />
