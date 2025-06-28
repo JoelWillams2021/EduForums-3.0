@@ -13,6 +13,9 @@ import { MongoClient, ObjectId } from 'mongodb';
 import OpenAI from 'openai';
 
 const FRONTEND_URL = process.env.FRONTEND_URL 
+console.log('🔍 FRONTEND_URL raw:', JSON.stringify(FRONTEND_URL));
+
+
 if (!FRONTEND_URL) {
   console.error('❌ FRONTEND_URL not set');
   process.exit(1);
