@@ -61,8 +61,6 @@ const client = new MongoClient(MONGODB_URI);
 // OpenAI client
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-// Global counter for signup/login flows
-let count = 0;
 
 async function startServer() {
   try {
@@ -74,14 +72,13 @@ async function startServer() {
     // STUDENT SIGN-UP
     app.post('/student-signup', async (req, res) => {
       const { name, password } = req.body;
-      if (req.session && count >= 1) {
+      if (req.session.user) {
         return res.status(400).json({ error: 'A user is already signed up or logged in' });
       }
       const exists = await db.collection('users').findOne({ name, userType: 'Student' });
       if (exists) return res.status(400).json({ error: 'Student already exists' });
       await db.collection('users').insertOne({ name, password, userType: 'Student' });
       req.session.user = { name, userType: 'Student' };
-      count += 1;
       console.log('Signed up student:', name);
       return res.json({ success: true });
     });
@@ -89,7 +86,7 @@ async function startServer() {
     // STUDENT LOGIN
     app.post('/login-student', async (req, res) => {
       const { name, password } = req.body;
-      if (req.session && count >= 2) {
+      if (req.session.user) {
         return res.status(400).json({ error: 'A user is already signed up or logged in' });
       }
       const user = await db.collection('users').findOne({ name, userType: 'Student' });
@@ -97,7 +94,6 @@ async function startServer() {
         return res.status(400).json({ error: 'Invalid password' });
       }
       req.session.user = { name: user.name, userType: user.userType };
-      count += 1;
       console.log('Logged in student:', name);
       return res.json({ success: true });
     });
@@ -105,14 +101,13 @@ async function startServer() {
     // ADMIN SIGN-UP
     app.post('/admin-signup', async (req, res) => {
       const { name, password } = req.body;
-      if (req.session && count >= 1) {
+      if (req.session.user) {
         return res.status(400).json({ error: 'A user is already signed up or logged in' });
       }
       const exists = await db.collection('users').findOne({ name, userType: 'Admin' });
       if (exists) return res.status(400).json({ error: 'Admin already exists' });
       await db.collection('users').insertOne({ name, password, userType: 'Admin' });
       req.session.user = { name, userType: 'Admin' };
-      count += 1;
       console.log('Signed up admin:', name);
       return res.json({ success: true });
     });
@@ -120,7 +115,7 @@ async function startServer() {
     // ADMIN LOGIN
     app.post('/login-admin', async (req, res) => {
       const { name, password } = req.body;
-      if (req.session && count >= 2) {
+      if (req.session.user) {
         return res.status(400).json({ error: 'A user is already signed up or logged in' });
       }
       const user = await db.collection('users').findOne({ name, userType: 'Admin' });
@@ -128,7 +123,6 @@ async function startServer() {
         return res.status(400).json({ error: 'Invalid password' });
       }
       req.session.user = { name: user.name, userType: user.userType };
-      count += 1;
       console.log('Logged in admin:', name);
       return res.json({ success: true });
     });
@@ -141,7 +135,6 @@ async function startServer() {
           console.error('Logout error:', err);
           return res.status(500).json({ error: 'Could not log out.' });
         }
-        count = 0;
         res.clearCookie('connect.sid');
         return res.json({ success: true });
       });
