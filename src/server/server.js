@@ -74,7 +74,8 @@ async function startServer() {
     // STUDENT SIGN-UP
     app.post('/student-signup', async (req, res) => {
       const { name, password } = req.body;
-      if (req.session.user && count >= 1) {
+      console.log(count + "For signup (before)");
+      if (req.session.user && count >= 0) {
         return res.status(400).json({ error: 'A user is already signed up or logged in' });
       }
       const exists = await db.collection('users').findOne({ name, userType: 'Student' });
@@ -89,7 +90,8 @@ async function startServer() {
     // STUDENT LOGIN
     app.post('/login-student', async (req, res) => {
       const { name, password } = req.body;
-      if (req.session.user && count >= 2) {
+      console.log(count + "For login (before)");
+      if (req.session.user && count >= 1) {
         return res.status(400).json({ error: 'A user is already signed up or logged in' });
       }
       const user = await db.collection('users').findOne({ name, userType: 'Student' });
