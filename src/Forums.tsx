@@ -111,6 +111,19 @@ const ForumsPage: React.FC = () => {
     }
   }, [userType]);
 
+    const handleDelete = useCallback(async (fid: string) => {
+    try {
+      await axios.delete(
+        `${API_BASE}/api/feedbacks/${fid}`,
+        { withCredentials: true }
+      );
+      // remove it from the list
+      setFeedbacks(prev => prev.filter(fb => fb._id !== fid));
+    } catch (err) {
+      console.error('Delete feedback error:', err);
+    }
+  }, []);
+
   const getSentimentLabel = useCallback((raw?: string) => {
     const norm = raw?.toLowerCase().trim() || '';
     if (norm.startsWith('positive')) return 'Positive';
@@ -145,7 +158,7 @@ const ForumsPage: React.FC = () => {
           <button onClick={e => { e.stopPropagation(); toggleStar(f._id, f.starred); }} className="absolute top-3 right-10 text-xl focus:outline-none">
             <FontAwesomeIcon icon={f.starred ? faSolidStar : faRegularStar} className={f.starred ? 'text-yellow-400' : 'text-gray-300'} />
           </button>
-          <button onClick={e => { e.stopPropagation(); /* delete logic */ }} className="absolute top-3 right-3 text-gray-400 hover:text-red-600 focus:outline-none">
+          <button onClick={e => { e.stopPropagation(); handleDelete(f._id); }} className="absolute top-3 right-3 text-gray-400 hover:text-red-600 focus:outline-none">
             <FontAwesomeIcon icon={faTrash} className="h-6 w-6" />
           </button>
         </>

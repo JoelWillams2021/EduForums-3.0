@@ -548,6 +548,32 @@ async function startServer() {
       }
     });
 
+    app.delete('/api/feedbacks/:id', async (req, res) => {
+      const user = req.session.user;
+      if (!user || user.userType !== 'Admin') {
+        return res.status(403).json({ error: 'Forbidden' });
+      }
+
+      const { id } = req.params;
+      if (!ObjectId.isValid(id)) {
+        return res.status(400).json({ error: 'Invalid feedback ID' });
+      }
+
+      try {
+        const result = await db
+          .collection('feedbacks')
+          .deleteOne({ _id: new ObjectId(id) });
+        if (result.deletedCount === 1) {
+          return res.json({ success: true });
+        } else {
+          return res.status(404).json({ error: 'Feedback not found' });
+        }
+      } catch (err) {
+        console.error('DELETE /api/feedbacks/:id error', err);
+        return res.status(500).json({ error: 'Server error' });
+      }
+    });
+
     app.get('/api/me', (req, res) => {
       if (req.session?.user) {
         // send back exactly the bits your client needs
