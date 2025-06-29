@@ -163,13 +163,11 @@ const ForumsPage: React.FC = () => {
           </button>
         )}
       </header>
-      <main className="py-16 px-5 w-full max-w-5xl mx-auto">
+      <main className="py-16 px-5 w-full max-w-5xl mx-auto space-y-8">
         {feedbacks.length === 0 ? (
           <p className="text-center text-gray-500">No feedback yet.</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            {feedbackList}
-          </div>
+          feedbackList
         )}
       </main>
     </div>
