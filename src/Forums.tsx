@@ -28,7 +28,6 @@ interface Feedback {
 }
 
 type VoteType = 'upvote' | 'downvote';
-
 type SentimentMap = Record<string, string>;
 type VoteMap = Record<string, VoteType>;
 
@@ -48,7 +47,7 @@ const ForumsPage: React.FC = () => {
   // Fetch role, community, feedbacks
   useEffect(() => {
     if (!communityId) return;
-    const fetchAll = async () => {
+    (async () => {
       try {
         const [roleRes, commRes, fbRes] = await Promise.all([
           axios.get(`${API_BASE}/api/check-user-role`, { withCredentials: true }),
@@ -62,8 +61,7 @@ const ForumsPage: React.FC = () => {
       } catch (e) {
         console.error('Error loading data:', e);
       }
-    };
-    fetchAll();
+    })();
   }, [communityId, location]);
 
   // Sentiment analysis
@@ -85,11 +83,7 @@ const ForumsPage: React.FC = () => {
   const handleVote = useCallback(async (fid: string, type: VoteType) => {
     if (userVotes[fid]) return;
     try {
-      await axios.post(
-        `${API_BASE}/api/feedbacks/${fid}/${type}`,
-        {},
-        { withCredentials: true }
-      );
+      await axios.post(`${API_BASE}/api/feedbacks/${fid}/${type}`, {}, { withCredentials: true });
       setFeedbacks(prev => prev.map(f => f._id === fid
         ? { ...f,
             upvotes: type === 'upvote' ? f.upvotes + 1 : f.upvotes,
@@ -110,11 +104,7 @@ const ForumsPage: React.FC = () => {
     if (userType !== 'Admin') return;
     const action = starred ? 'unstar' : 'star';
     try {
-      await axios.post(
-        `${API_BASE}/api/feedbacks/${fid}/${action}`,
-        {},
-        { withCredentials: true }
-      );
+      await axios.post(`${API_BASE}/api/feedbacks/${fid}/${action}`, {}, { withCredentials: true });
       setFeedbacks(prev => prev.map(f => f._id === fid ? { ...f, starred: !f.starred } : f));
     } catch (e) {
       console.error('Star toggle error:', e);
@@ -130,7 +120,7 @@ const ForumsPage: React.FC = () => {
 
   // Memoized list rendering
   const feedbackList = useMemo(() => feedbacks.map(f => (
-    <div key={f._id} className="relative bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl p-6 flex flex-col">
+    <div key={f._id} className="w-full relative bg-white border border-gray-200 rounded-2xl shadow-lg hover:shadow-xl p-6 flex flex-col">
       <div onClick={() => navigate(`/feedback/${f._id}`)} className="cursor-pointer flex-grow">
         <h2 className="text-2xl font-semibold mb-2">{f.title}</h2>
         <p className="text-gray-500 text-sm mb-4">by {f.studentName} ({f.standing}, {f.major})</p>
@@ -173,8 +163,14 @@ const ForumsPage: React.FC = () => {
           </button>
         )}
       </header>
-      <main className="flex flex-col items-center py-16 px-5 w-full max-w-5xl mx-auto space-y-8">
-        {feedbacks.length === 0 ? <p className="text-center text-gray-500">No feedback yet.</p> : feedbackList}
+      <main className="py-16 px-5 w-full max-w-5xl mx-auto">
+        {feedbacks.length === 0 ? (
+          <p className="text-center text-gray-500">No feedback yet.</p>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {feedbackList}
+          </div>
+        )}
       </main>
     </div>
   );
