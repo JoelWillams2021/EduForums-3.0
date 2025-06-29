@@ -15,9 +15,7 @@ const Landing: React.FC = () => {
           alt="discussion illustration"
           className="mb-[-60px] max-w-[123%] sm:mb-0 sm:max-w-full"
         />
-        <div className="absolute inset-0 flex flex-col justify-center items-center">
-          <h1 className="text-4xl montserrat-bold">EduForums</h1>
-         
+          <h1 className="text-4xl montserrat-bold">EduForums</h1>        
             <p className="text-lg cursor-pointer text-gray-500" onClick={() => navigate("/admin-signup")}>
               Sign Up as Admin
             </p>
@@ -32,7 +30,6 @@ const Landing: React.FC = () => {
             </p>
         </div>
       </div>
-    </div>
   );
 };
 
