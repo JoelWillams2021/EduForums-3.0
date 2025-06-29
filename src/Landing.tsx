@@ -7,36 +7,53 @@ import mySvg from './assets/discussion.svg';
 const Landing: React.FC = () => {
   const navigate = useNavigate();
 
-  
-  const handleAdminSignUp = () => {
-    navigate("/admin-signup");
-  };
-
-  const handleStudentSignUp = () => {
-    navigate("/student-signup");
-  };
-
-  const handleAdminLogIn = () => {
-    navigate("/login-admin");
-  };
-
-  const handleStudentLogIn = () => {
-    navigate("/login-student");
-  };
+  const handleAdminSignUp = () => navigate("/admin-signup");
+  const handleStudentSignUp = () => navigate("/student-signup");
+  const handleAdminLogIn = () => navigate("/login-admin");
+  const handleStudentLogIn = () => navigate("/login-student");
 
   return (
-    <div className="flex items-center justify-center h-screen">
-      <div className="relative text-center">
-        <img src={mySvg} alt="My SVG" />
-        <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-center items-center">
-          <h1 className="text-4xl montserrat-bold">EduForums</h1>
-          <div className="flex justify-center space-x-6 mt-4 mr-6">
-            <p className="text-lg cursor-pointer text-500" onClick={handleAdminSignUp}>Sign Up as Admin</p>
-            <p className="text-lg cursor-pointer text-500" onClick={handleStudentSignUp}>Sign Up as Student</p>
+    <div className="flex items-center justify-center h-screen px-4">
+      <div className="relative w-full max-w-4xl">
+        {/* Responsive SVG positioned to right and lower on md+ screens */}
+        <img
+          src={mySvg}
+          alt="Discussion"
+          className="w-full max-w-xs sm:max-w-md h-auto mx-auto
+                     mt-4 ml-4 sm:mt-0 sm:ml-0
+                     md:absolute md:top-16 md:right-8 md:mx-0"
+        />
+
+        {/* Text overlay */}
+        <div className="absolute inset-0 flex flex-col justify-center items-center pointer-events-none">
+          <h1 className="text-4xl montserrat-bold mb-4">EduForums</h1>
+          <div className="flex flex-wrap justify-center space-x-4 space-y-2 pointer-events-auto">
+            <p
+              className="text-lg cursor-pointer text-gray-700 hover:text-gray-900"
+              onClick={handleAdminSignUp}
+            >
+              Sign Up as Admin
+            </p>
+            <p
+              className="text-lg cursor-pointer text-gray-700 hover:text-gray-900"
+              onClick={handleStudentSignUp}
+            >
+              Sign Up as Student
+            </p>
           </div>
-          <div className="flex justify-center space-x-6 mb-2 mr-3">
-            <p className="text-lg cursor-pointer text-500" onClick={handleAdminLogIn}>Log In as Admin</p>
-            <p className="text-lg cursor-pointer text-500" onClick={handleStudentLogIn}>Log In as Student</p>
+          <div className="flex flex-wrap justify-center space-x-4 mt-4 pointer-events-auto">
+            <p
+              className="text-lg cursor-pointer text-gray-700 hover:text-gray-900"
+              onClick={handleAdminLogIn}
+            >
+              Log In as Admin
+            </p>
+            <p
+              className="text-lg cursor-pointer text-gray-700 hover:text-gray-900"
+              onClick={handleStudentLogIn}
+            >
+              Log In as Student
+            </p>
           </div>
         </div>
       </div>
@@ -45,9 +62,3 @@ const Landing: React.FC = () => {
 };
 
 export default Landing;
-
-
-
-
-
-  
