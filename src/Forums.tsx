@@ -79,18 +79,28 @@ const ForumsPage: React.FC = () => {
     });
   }, [feedbacks, sentiments]);
 
-  // Vote action
+
+// 2) whenever you set votes, also persist
   const handleVote = useCallback(async (fid: string, type: VoteType) => {
     if (userVotes[fid]) return;
     try {
-      await axios.post(`${API_BASE}/api/feedbacks/${fid}/${type}`, {}, { withCredentials: true });
-      setFeedbacks(prev => prev.map(f => f._id === fid
-        ? { ...f,
-            upvotes: type === 'upvote' ? f.upvotes + 1 : f.upvotes,
-            downvotes: type === 'downvote' ? f.downvotes + 1 : f.downvotes,
-          }
-        : f
-      ));
+      await axios.post(
+        `${API_BASE}/api/feedbacks/${fid}/${type}`,
+        {},
+        { withCredentials: true }
+      );
+      setFeedbacks(prev =>
+        prev.map(fb =>
+          fb._id === fid
+            ? {
+                ...fb,
+                upvotes: type === 'upvote' ? fb.upvotes + 1 : fb.upvotes,
+                downvotes: type === 'downvote' ? fb.downvotes + 1 : fb.downvotes,
+              }
+            : fb
+        )
+      );
+
       const updated = { ...userVotes, [fid]: type };
       setUserVotes(updated);
       sessionStorage.setItem('userVotes', JSON.stringify(updated));
@@ -98,6 +108,12 @@ const ForumsPage: React.FC = () => {
       console.error('Vote error:', e);
     }
   }, [userVotes]);
+
+  // 3) clear votes on user change
+  useEffect(() => {
+    sessionStorage.removeItem('userVotes');
+    setUserVotes({});
+  }, [userType]);
 
   // Star toggle for admins
   const toggleStar = useCallback(async (fid: string, starred: boolean) => {
