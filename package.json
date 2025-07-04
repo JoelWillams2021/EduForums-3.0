@@ -9,7 +9,7 @@
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "e2e:live": "cross-env BASE_URL=https://eduforums.up.railway.app mocha tests/selenium-tests.js --timeout 30000"
+    "e2e:live": "cross-env BASE_URL=https://eduforums.up.railway.app mocha tests/selenium-tests.cjs --timeout 30000"
   },
   "dependencies": {
     "@fortawesome/free-regular-svg-icons": "^6.7.2",
