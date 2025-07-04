@@ -8,7 +8,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "e2e:live": "BASE_URL= https://eduforums.up.railway.app.mocha tests/selenium-tests.js --timeout 30000"
   },
   "dependencies": {
     "@fortawesome/free-regular-svg-icons": "^6.7.2",
@@ -33,11 +34,14 @@
     "@typescript-eslint/parser": "^7.2.0",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.19",
+    "chromedriver": "^138.0.1",
     "concurrently": "^8.2.2",
     "eslint": "^8.57.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.6",
+    "mocha": "^11.7.1",
     "postcss": "^8.4.38",
+    "selenium-webdriver": "^4.34.0",
     "tailwindcss": "^3.4.3",
     "typescript": "^5.2.2",
     "vite": "^5.2.0"
