@@ -1,9 +1,9 @@
 // selenium-tests.js
 // Automated end-to-end tests for EduForums using Selenium WebDriver + Mocha
 
-const { Builder, By, until } = require('selenium-webdriver');
-const chrome = require('selenium-webdriver/chrome');
-const assert = require('assert');
+import { Builder, By, until } from 'selenium-webdriver';
+import { Options } from 'selenium-webdriver/chrome';
+import { ok, strictEqual } from 'assert';
 
 // Base URL of your deployed front-end
 const BASE_URL = 'https://eduforums.up.railway.app';
@@ -16,7 +16,7 @@ describe('EduForums E2E Tests', function() {
 
   before(async () => {
     // Use headless Chrome for CI
-    const options = new chrome.Options().headless();
+    const options = new Options().headless();
     driver = await new Builder()
       .forBrowser('chrome')
       .setChromeOptions(options)
@@ -41,7 +41,7 @@ describe('EduForums E2E Tests', function() {
     // Expect redirect to /login-student
     await driver.wait(until.urlContains('/login-student'), 5000);
     const url = await driver.getCurrentUrl();
-    assert.ok(url.includes('/login-student'));
+    ok(url.includes('/login-student'));
   });
 
   it('should log in the student and navigate to communities', async () => {
@@ -53,7 +53,7 @@ describe('EduForums E2E Tests', function() {
     // Expect navigation to /communities
     await driver.wait(until.urlContains('/communities'), 5000);
     const url = await driver.getCurrentUrl();
-    assert.ok(url.includes('/communities'));
+    ok(url.includes('/communities'));
   });
 
   it('should allow admin to create and delete a community', async () => {
@@ -89,7 +89,7 @@ describe('EduForums E2E Tests', function() {
     // Confirm it is removed
     await driver.sleep(1000);
     const elems = await driver.findElements(By.xpath("//h2[text()='SeleniumTestComm']"));
-    assert.strictEqual(elems.length, 0);
+    strictEqual(elems.length, 0);
   });
 });
 
