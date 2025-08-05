@@ -1,4 +1,4 @@
-import React, { useRef, useState, useCallback } from 'react';
+import { useRef, useState, useCallback } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios';
 import { API_BASE } from './api';
@@ -17,7 +17,7 @@ const AddComment: React.FC = () => {
       try {
         const commentText = commentRef.current!.value;
         await axios.post(
-          `${API_BASE}/feedbacks/${feedbackId}/comments`,
+          `${API_BASE}/api/feedbacks/${feedbackId}/comments`,
           { commentText },
           { withCredentials: true }
         );
