@@ -17,7 +17,7 @@ const AddComment: React.FC = () => {
       try {
         const commentText = commentRef.current!.value;
         await axios.post(
-          `${API_BASE}/api/feedbacks/${feedbackId}/comments`,
+          `${API_BASE}/feedbacks/${feedbackId}/comments`,
           { commentText },
           { withCredentials: true }
         );
